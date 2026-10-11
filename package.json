@@ -1,0 +1,7 @@
+{
+  "name": "radio-nvc-netlify",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": { "ably": "^2.0.0" }
+}
