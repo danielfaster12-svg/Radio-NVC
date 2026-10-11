@@ -290,7 +290,7 @@ function build(list,par,color,cat){
    e.innerHTML='<span class="ic">'+svg(tac?'bang':'wk')+'</span>'+n+(lock||/MHz/.test(n)?'':'<small>'+FREQ[id]+'</small>');
    e.dataset.sup=lock?1:0;e.onclick=()=>join(id,lock&&!isMando());e.onkeydown=ev=>{if(ev.key==='Enter')join(id,lock&&!isMando())};par.append(e);const pp=document.createElement('div');pp.className='pp';pp.dataset.n=id;par.append(pp)}})}
 const CFG={backend:''}; // URL de tu servidor de cuentas, p. ej. 'https://radio-nvc.onrender.com'
-const REAL=true,REQ=['mic','cam','not'],TEST=location.hash==='#prueba';
+const REAL=true,REQ=['mic','cam'],TEST=location.hash==='#prueba';
 let SRV={roles:[],owner:false};
 var rtJoined=null,rtName=null,rt=null,rtLobby=null,rtRoom=null,rtCtl=null,MYCID=null,prevRoster={};const NAME2CID={};
 const SID=(()=>{let s=null;try{s=localStorage.getItem('sid')}catch(_){}if(!s){s=Array.from(crypto.getRandomValues(new Uint8Array(24)),b=>b.toString(16).padStart(2,'0')).join('');try{localStorage.setItem('sid',s)}catch(_){}}return s})();
@@ -433,7 +433,7 @@ $('#q').oninput=e=>{const v=e.target.value.trim().toLowerCase();$('#tree').class
 
 const AC=(()=>{try{return JSON.parse(LS('acc')||'{}')}catch(_){return{}}})();
 const saveA=()=>{try{localStorage.setItem('acc',JSON.stringify(AC))}catch(_){}};
-const PERMS=[['mic','Micrófono','Para hablar por radio con el filtro de voz.'],['cam','Cámara','La radio aún no la usa. Si tu equipo no tiene cámara, no hace falta.'],['not','Notificaciones','Para avisarte de mensajes cuando la pestaña está en segundo plano.']];
+const PERMS=[['mic','Micrófono','Obligatorio. Para hablar por radio con el filtro de voz.'],['cam','Cámara','Obligatorio si tu equipo tiene cámara. La radio aún no la usa.'],['not','Notificaciones','Opcional. Para avisarte de mensajes cuando la pestaña está en segundo plano.']];
 const PNAME={mic:'microphone',cam:'camera',not:'notifications'},PCH={nodevice:'Sin dispositivo',granted:'Concedido',denied:'Bloqueado',prompt:'Pendiente',unavailable:'No disponible',unknown:'Sin comprobar'},pst={};
 const NM={mic:'Micrófono',cam:'Cámara',not:'Notificaciones',discord:'Discord',roblox:'Roblox'};
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
@@ -478,7 +478,7 @@ function renderAcc(){
    g.onclick=()=>{const v=i.value.trim();if(!v)return toast('Escribe tu usuario de '+l);AC[k]=v;saveA();if(k==='roblox'&&myName==='Agente'){$('#nameIn').value=v;$('#nameIn').dispatchEvent(new Event('input'))}renderAcc();upId()};r.append(i,g)}
   s1.append(r)});
  s1.append(el('p','an',REAL?'Con un clic se abre la página oficial de cada servicio. Al aceptar, vuelves aquí con la cuenta vinculada y verificada. Es opcional, pero sin vincular no aparecerás ante los demás ni podrás chatear con ellos.':'Modo demostración: no hay servidor de cuentas conectado, así que solo se guarda tu usuario en este navegador y no queda verificado.'));
- const s2=sec('Permisos (obligatorio)');
+ const s2=sec('Permisos');
  PERMS.forEach(([k,l,d])=>{const r=el('div','ar'),w=el('div','aw');w.append(el('b','',l),el('small','',d));const st=pst[k]||'unknown';
   r.append(w,el('span','chip2 '+(st==='granted'?'ok':st==='denied'?'bad':''),PCH[st]||PCH.unknown));
   const done=st==='granted'||st==='nodevice',g=el('button',done?'btn2':'btn',st==='granted'?'Listo':st==='nodevice'?'No hace falta':st==='denied'?'Cómo desbloquear':'Permitir');g.disabled=done;
