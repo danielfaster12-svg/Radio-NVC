@@ -4,6 +4,6 @@
 
    [[redirects]]
      from = "/"
-     to = "/radio3.html"
+     to = "/radio4.html"
      status = 200
      force = true
