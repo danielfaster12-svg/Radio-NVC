@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Radio NVC:RP</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root{--bg:#0a0b0c;--side:#0f1011;--card:#141517;--line:#1e2023;--tx:#e9e7e0;--mut:#8a8982;--amb:#ffb62e;--grn:#41d67c;--red:#f0513f;--ff:"Barlow","Segoe UI",system-ui,sans-serif;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.4 var(--ff)}
+:focus-visible{outline:2px solid var(--amb);outline-offset:2px}
+.app{display:grid;grid-template-columns:292px 1fr;height:100%}
+@media(max-width:720px){.app{grid-template-columns:1fr;grid-template-rows:46% 1fr}.vu,.key{display:none!important}}
+aside{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;position:relative}
+.srv{display:flex;align-items:center;gap:11px;padding:14px 16px;font:700 17px var(--ff);border-bottom:1px solid var(--line);background:linear-gradient(#1a1508,#0f1011)}
+.srv i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#ffc94d,#c27a00);color:#1a1100;font-style:normal;font-size:16px;box-shadow:0 4px 12px #ffb62e44}
+.srch{padding:10px 12px;border-bottom:1px solid var(--line)}
+.srch input{width:100%;background:#0b0c0d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%238a8982' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='4.5'/%3E%3Cpath d='M10.5 10.5L14 14'/%3E%3C/svg%3E") 10px center/14px no-repeat;border:1px solid var(--line);color:var(--tx);border-radius:9px;padding:8px 10px 8px 32px;font:inherit}
+.srch input:focus{border-color:#6a4f10;outline:0}
+#tree{flex:1;overflow:auto;padding:6px 8px}
+#tree::-webkit-scrollbar{width:6px}#tree::-webkit-scrollbar-thumb{background:#2a2b2e;border-radius:3px}
+.cat{display:flex;align-items:center;gap:8px;padding:8px;margin-top:4px;cursor:pointer;font:600 14px var(--ff);border-radius:9px;user-select:none}
+.cat:hover{background:#17181a}
+.cat:before{content:"";width:6px;height:6px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);margin:0 4px 3px 2px;transition:transform .15s;flex:none}
+.cat.c:before{transform:rotate(-45deg)}
+.kids{margin-left:14px;padding-left:6px;border-left:1px solid var(--line)}.kids.c{display:none}
+#tree.searching .kids.c{display:block}
+.nomatch{display:none!important}
+.ch{display:flex;align-items:center;gap:9px;padding:6px 10px;margin:1px 0;cursor:pointer;border-radius:9px;color:#d8d6cf;transition:background .12s}
+.ch:hover{background:#17181a}
+.ch .ic{color:var(--amb);width:16px;height:16px;display:flex;flex:none}
+.ch small{margin-left:auto;font-size:11px;color:var(--mut);font-variant-numeric:tabular-nums}
+.ch.on{background:linear-gradient(90deg,#33270a,#1a1406);color:#fff;box-shadow:inset 3px 0 var(--amb)}
+.ch.talk{box-shadow:inset 3px 0 var(--grn)}.ch.talk .ic{color:var(--grn);filter:drop-shadow(0 0 5px var(--grn))}
+.ch.drop{background:#0f2a18;box-shadow:inset 3px 0 var(--grn)}
+.ch.lock{color:#6a6963}
+.ch.lock:after{content:"";width:12px;height:12px;margin-left:auto;opacity:.7;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5' fill='%238b8a85'/%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%238b8a85' stroke-width='1.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.pp .pr{display:flex;align-items:center;gap:8px;margin:1px 0 3px 30px;padding:3px 8px;border-radius:7px;font-size:13px;color:#cfcdc6}
+.pp .pr i{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#ffc94d,#a85e00);display:grid;place-items:center;font:700 11px var(--ff);color:#1a1100;font-style:normal;flex:none}
+.pp .pr.talk i{box-shadow:0 0 0 2px var(--grn)}
+.pr[draggable=true]{cursor:grab}.pr[draggable=true]:hover{background:#17181a}
+#rh{margin:8px 4px;padding:12px;border:1px dashed #5a4410;border-radius:11px;color:#d6bd78;font-size:13px;background:#15110a}
+.lamp{width:9px;height:9px;border-radius:50%;background:var(--grn);box-shadow:0 0 8px var(--grn);flex:none;animation:bl 2s infinite}@keyframes bl{50%{opacity:.45}}
+#conn{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid #1d3324;background:linear-gradient(#10190f,#0d120c)}
+#conn .cs{display:flex;align-items:center;gap:10px;min-width:0}#conn b{display:block;color:var(--grn);font-size:13px}
+#conn small{display:block;color:var(--mut);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me{display:flex;align-items:center;gap:6px;padding:10px 12px;border-top:1px solid var(--line);background:#0b0c0d}
+.av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ffc94d,#a85e00);display:grid;place-items:center;color:#1a1100;font-weight:700;position:relative;flex:none}
+.av:after{content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--grn);border:2px solid #0b0c0d}
+.nm{flex:1;min-width:0;margin-left:4px}.nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nm small{color:var(--mut);font-size:11px}
+.ib{position:relative;display:grid;place-items:center;background:none;border:0;color:var(--mut);cursor:pointer;padding:7px;border-radius:8px}
+.ib:hover{background:#1c1d20;color:var(--tx)}.ib.off{color:var(--red)}
+.ib.off:after{content:"";position:absolute;left:6px;right:6px;top:50%;height:2px;background:var(--red);transform:rotate(-40deg)}
+.pop{position:absolute;left:10px;right:10px;bottom:68px;max-height:80vh;overflow:auto;background:#141517;border:1px solid #2a2c30;border-radius:14px;padding:14px;display:none;gap:11px;flex-direction:column;box-shadow:0 20px 50px #000c;z-index:5}
+.pop.s{display:flex}.pt{font:700 16px var(--ff)}
+.pop label{display:flex;gap:10px;align-items:center;font-size:13px;color:#b9b7b0}
+.pop input[type=text],.pop input[type=password],.pop select{width:100%;background:#0b0c0d;border:1px solid #2a2c30;border-radius:9px;color:var(--tx);padding:8px 10px;font:inherit}
+.pop select{flex:1}.pop input[type=range]{flex:1;accent-color:var(--amb)}
+.pop label input[type=checkbox]{appearance:none;-webkit-appearance:none;width:32px;height:18px;border-radius:9px;background:#2a2b2f;position:relative;flex:none;cursor:pointer;transition:background .15s}
+.pop label input[type=checkbox]:after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#9a9890;transition:left .15s}
+.pop label input[type=checkbox]:checked{background:var(--amb)}.pop label input[type=checkbox]:checked:after{left:16px;background:#1a1100}
+#rm{display:grid;gap:4px}#rm>div{border-top:1px solid var(--line);padding-top:10px}
+#rm .u{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12px;padding:6px 0;border-top:1px solid var(--line)}#rm .u b{flex-basis:100%}
+.btn{border:0;border-radius:9px;padding:9px 14px;font:700 13px var(--ff);cursor:pointer;background:var(--amb);color:#1a1100}.btn:hover{filter:brightness(1.08)}
+main{display:flex;flex-direction:column;min-height:0;min-width:0;background:radial-gradient(ellipse 70% 35% at 50% -8%,#2d220a66,transparent),var(--bg)}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);gap:10px}
+#tabs{display:flex;gap:8px;overflow:auto}
+.tab{padding:8px 16px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--mut);font:600 13px var(--ff);cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--tx)}.tab.a{background:#1f4aa0;border-color:#3a74e0;color:#fff}.tab.r.a{background:var(--amb);border-color:var(--amb);color:#1a1100}
+.bb{display:flex;gap:7px;align-items:center;white-space:nowrap;cursor:pointer;color:var(--amb);font:600 13px var(--ff);background:#1b1507;border:1px solid #5a4410;border-radius:999px;padding:6px 12px}
+.bb:hover{background:#261c08}.bb span{background:var(--amb);color:#1a1100;border-radius:50%;width:19px;height:19px;display:grid;place-items:center;font-size:11px;font-weight:700}
+#bf{margin:10px 14px 0;padding:12px;border:1px solid #5a4410;background:#1b1507;border-radius:12px;display:none;gap:8px;grid-template-columns:repeat(3,1fr) auto}
+#bf.s{display:grid}@media(max-width:720px){#bf.s{grid-template-columns:1fr}}
+#bf input{background:#0e0b04;border:1px solid #4a3a10;border-radius:9px;color:var(--tx);padding:9px;min-width:0;font:inherit}
+.bolo{margin:10px 14px 0;padding:12px 16px;border:1px solid #5a4410;background:linear-gradient(135deg,#261c08,#171106);border-radius:12px;position:relative;box-shadow:0 8px 24px #0006}
+.bolo h4{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:var(--amb);font:700 13px var(--ff);letter-spacing:.06em}
+.bolo h4:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red)}.bolo h4 small{color:var(--mut);font-weight:400;letter-spacing:0}
+.bolo div{display:flex;align-items:center;gap:10px;font-size:13px;line-height:1.8}.bolo span{color:#a8884a;min-width:150px}.bolo b{font-weight:500}
+.bolo i{width:12px;height:12px;border-radius:50%;border:1px solid #fff5;flex:none}
+.bolo b.plate{font:700 15px "Barlow Condensed",var(--ff);letter-spacing:.14em;background:#f4f1e6;color:#101010;padding:0 10px;border-radius:5px;border:2px solid #1c3f94}
+.bolo button{position:absolute;right:8px;top:6px;background:none;border:0;color:var(--mut);cursor:pointer;font-size:18px}
+#st{display:flex;align-items:center;gap:14px;margin:10px 14px 0;padding:10px 14px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(#151618,#101113);color:var(--mut);font-size:12px;order:0}
+#st .lamp{background:#55554f;box-shadow:none;animation:none}#st.on .lamp{background:var(--amb);box-shadow:0 0 8px var(--amb)}
+#st.tx .lamp{background:var(--red);box-shadow:0 0 12px var(--red)}#st.rx .lamp{background:var(--grn);box-shadow:0 0 12px var(--grn)}
+.stn{min-width:0;flex:1}.stn b{display:block;color:var(--tx);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lcd{font:700 26px/1 "Barlow Condensed",var(--ff);color:var(--amb);background:#120d03;border:1px solid #3a2c0a;border-radius:9px;padding:6px 11px;text-shadow:0 0 10px #ffb62e88;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.lcd em{font:500 11px var(--ff);color:#a8884a;margin-left:5px;font-style:normal;letter-spacing:0}
+.vu{display:flex;gap:3px;align-items:flex-end;height:24px}.vu i{width:5px;height:25%;background:#26272a;border-radius:2px}
+#st.tx .vu i,#st.rx .vu i{background:var(--amb);animation:vu .45s infinite alternate}#st.rx .vu i{background:var(--grn)}
+.vu i:nth-child(2){animation-delay:.08s}.vu i:nth-child(3){animation-delay:.2s}.vu i:nth-child(4){animation-delay:.12s}.vu i:nth-child(5){animation-delay:.28s}.vu i:nth-child(6){animation-delay:.16s}
+@keyframes vu{to{height:100%}}
+.key{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.key kbd{font:700 13px var(--ff);color:var(--tx);background:#202226;border:1px solid #34363b;border-bottom-width:3px;border-radius:7px;padding:3px 10px}
+#chat{flex:1;overflow:auto;padding:14px 20px;min-height:0}
+.empty{height:100%;display:grid;place-content:center;text-align:center;color:var(--mut)}.empty svg{display:block;margin:0 auto 12px;color:#4a3d1a}
+.empty b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
+.m{display:flex;gap:12px;margin-bottom:14px;max-width:780px}
+.m>i{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 14px var(--ff);font-style:normal;color:#1a1100;background:linear-gradient(135deg,#ffc94d,#a85e00)}
+.m.in>i{background:linear-gradient(135deg,#7bf0ab,#1c8a4c)}
+.mh{display:flex;align-items:baseline;gap:8px}.mh b{font-size:14px}.m.out .mh b{color:var(--amb)}.m.in .mh b{color:var(--grn)}.mh small{color:var(--mut);font-size:11px}
+.m p{margin:2px 0 0;overflow-wrap:anywhere;line-height:1.45}
+.m.sys{justify-content:center;align-items:center;gap:8px;margin:6px 0;max-width:none}
+.m.sys span{background:#13241a;border:1px solid #1f3d2a;color:#7ee2a5;border-radius:999px;padding:3px 12px;font-size:12px}.m.sys small{color:var(--mut);font-size:11px}
+footer{display:flex;gap:8px;padding:10px 14px 14px;align-items:center}
+footer input[type=text]{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:12px;padding:13px 14px;font:inherit}
+footer input[type=text]:focus{border-color:#6a4f10;outline:0}
+.chip{position:relative;display:flex;align-items:center;padding:11px 14px;border-radius:999px;border:1px solid var(--line);color:var(--mut);cursor:pointer;white-space:nowrap;font-size:13px;user-select:none}
+.chip input{position:absolute;opacity:0;pointer-events:none}.chip:has(input:checked){background:#14301f;border-color:#2c6b43;color:var(--grn)}.chip:has(input:focus-visible){outline:2px solid var(--amb)}
+.send{width:46px;height:46px;border-radius:12px;border:0;background:var(--amb);color:#1a1100;cursor:pointer;display:grid;place-items:center;flex:none}.send:hover{filter:brightness(1.08)}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(8px);background:#1d1608;color:var(--amb);border:1px solid #6a4f10;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 10px 30px #000a;z-index:9}#toast.s{opacity:1;transform:translateX(-50%)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#stage{position:relative;flex:1;min-height:0;display:flex;overflow:hidden}
+#stage #chat{position:relative;z-index:1;flex:1;min-width:0}
+.smoke{position:absolute;inset:-12%;z-index:0;pointer-events:none;filter:url(#heat)}
+.smoke i{position:absolute;display:block;border-radius:50%;will-change:transform;animation:drift 18s ease-in-out infinite alternate;background:radial-gradient(closest-side,#8a3cffaa,#5b22b866 45%,#3a128800 100%)}
+.smoke i:nth-child(1){width:55%;height:70%;left:-4%;top:6%}
+.smoke i:nth-child(2){width:45%;height:55%;left:38%;top:28%;animation-duration:24s;animation-delay:-6s;background:radial-gradient(closest-side,#b04dffa0,#6a2bd066 45%,#3a128800 100%)}
+.smoke i:nth-child(3){width:40%;height:65%;right:-6%;top:-8%;animation-duration:21s;animation-delay:-11s}
+.smoke i:nth-child(4){width:60%;height:40%;left:15%;bottom:-12%;animation-duration:27s;animation-delay:-3s;background:radial-gradient(closest-side,#5a2de088,#3a1a9966 45%,#1a0a5000 100%)}
+.smoke i:nth-child(5){width:26%;height:80%;left:62%;top:5%;animation-duration:15s;animation-delay:-8s;transform-origin:50% 100%}
+@keyframes drift{0%{transform:translate(0,0) scale(1) rotate(0)}33%{transform:translate(7%,-9%) scale(1.18) rotate(8deg)}66%{transform:translate(-6%,5%) scale(.92) rotate(-6deg)}100%{transform:translate(4%,-4%) scale(1.1) rotate(4deg)}}
+@media(prefers-reduced-motion:reduce){.smoke{filter:none}}
+#acc{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#05030acc;backdrop-filter:blur(6px);padding:16px}#acc[hidden]{display:none}
+.ac{width:min(560px,100%);max-height:92vh;overflow:auto;background:linear-gradient(#17151c,#121115);border:1px solid #2e2a38;border-radius:18px;padding:20px;box-shadow:0 30px 80px #000d,0 0 60px #6a2bd033}
+.ah{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:8px}.ah h2{margin:0;font:700 20px var(--ff)}.ah p{margin:4px 0 0;color:var(--mut);font-size:13px}
+.as{margin-top:16px}.as h3{margin:0 0 8px;font:700 13px var(--ff);color:var(--amb)}
+.ar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0f0f12;margin-bottom:8px}
+.ai{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font:700 15px var(--ff);font-style:normal;flex:none}
+.aw{flex:1;min-width:150px}.aw b{display:block}.aw small{color:var(--mut);font-size:12px;line-height:1.3;display:block}
+.ar input{flex:1;min-width:140px;background:#0b0c0d;border:1px solid #2a2c30;border-radius:9px;color:var(--tx);padding:8px 10px;font:inherit}
+.chip2{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:#25262a;color:var(--mut)}.chip2.ok{background:#14301f;color:var(--grn)}.chip2.bad{background:#35150f;color:#ff8a76}.chip2.warn{background:#33270a;color:var(--amb)}
+.btn2{border:1px solid #34363b;border-radius:9px;padding:8px 12px;font:600 13px var(--ff);cursor:pointer;background:#1b1c20;color:var(--tx)}.btn2:disabled{opacity:.6;cursor:default}
+.an{margin:4px 2px 0;color:var(--mut);font-size:12px;line-height:1.4}.af{display:flex;justify-content:flex-end;margin-top:14px}
+.af{justify-content:space-between;align-items:center;gap:12px}#accs{color:var(--mut);font-size:12px}.btn:disabled{opacity:.45;cursor:not-allowed}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="heat" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="3" result="n"><animate attributeName="baseFrequency" dur="14s" values="0.006 0.012;0.011 0.022;0.006 0.012" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="40" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<div class="app">
+<aside>
+ <div class="srv"><i><svg viewBox="0 0 16 16" width="18" height="18" fill="#1a1100"><rect x="5" y="5" width="7" height="10.5" rx="1.6"/><rect x="10.2" y="1.2" width="1.7" height="4.3" rx=".8"/><rect x="6.4" y="6.4" width="4.2" height="2.2" rx=".5" fill="#ffc94d"/></svg></i>Nueva Costa RP (NVC:RP)</div>
+ <div class="srch"><input id="q" type="search" placeholder="Buscar canal…" autocomplete="off" aria-label="Buscar canal"></div>
+ <nav id="tree"></nav>
+ <div class="pop" id="pop">
+  <div class="pt">Ajustes</div>
+  <input type="text" id="nameIn" maxlength="22" placeholder="Nombre o indicativo del personaje">
+  <label>Volumen <input type="range" id="vol" min="0" max="100" value="70"></label>
+  <label><input type="checkbox" id="voz">Leer mensajes en voz alta</label>
+  <label><input type="checkbox" id="rog">Pitido de fin de mensaje</label>
+  <label>Sonido al hablar <select id="snd"><option value="mp3">Tu sonido de radio</option><option value="clic">Clic seco</option><option value="bip">Bip corto</option><option value="sql">Estática</option></select></label>
+  <label><input type="checkbox" id="mon">Oírme con filtro de radio (usa auriculares)</label>
+ </div>
+ <div id="conn"></div>
+ <div class="me"><div class="av" id="av">A</div><div class="nm"><b id="mn">Agente</b><small id="mid">#4821</small></div>
+  <button class="ib" id="bmic" title="Micrófono">🎙</button><button class="ib" id="bhp" title="Auriculares">🎧</button><button class="ib" id="bset" title="Ajustes">⚙</button></div>
+</aside>
+<main>
+ <header><div id="tabs"></div><button class="bb" id="bbolo">🔍 BOLO <span id="bc">0</span></button></header>
+ <div id="bf"><input id="b1" placeholder="Descripción del vehículo"><input id="b2" placeholder="Color"><input id="b3" placeholder="Matrícula"><button class="btn" id="bgo">Emitir</button></div>
+ <div id="st"></div>
+ <div id="bolos"></div>
+ <div id="stage"><div class="smoke" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div id="chat"></div></div>
+ <footer><input type="text" id="msg" placeholder="Mensaje a Chat global…" autocomplete="off"><label class="chip"><input type="checkbox" id="inc">Entrante</label><button class="send" id="send" aria-label="Enviar mensaje"><svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor"><path d="M1.5 2l13 6-13 6 1.8-5.5L9 8 3.3 7.5z"/></svg></button></footer>
+</main></div>
+<div id="toast"></div>
+<script src="https://cdn.ably.com/lib/ably.min-2.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const N=(p,a)=>a.map(x=>p+' - '+x),
+T=()=>({n:'Tácticas',c:'#ffe14d',i:'⚠',k:['*TAC-1','*TAC-2','*TAC-3']}),
+S=(x,o)=>['Cafetería','Asignación','Reuniones '+x,o+'!'],
+G=(n,c,k,i)=>({n,c,k,i});
+const TREE=[
+G('Out Of Character','#f5b82e',['Verificación','Soporte','Cafetería conjunta','Zona OOC',G("Staff's",'#7ea6ff',['Soporte a !mod'],'👥')]),
+G('Departamento de Transporte','#3ecf6e',['Oficina Superiores DT!','Central',G('Frecuencias','#3ecf6e',['Radio Eventos','Radio 1','Radio 2','Radio 3'],'🛣')],'🚍'),
+G('Ciudad de la Justicia','#d9a520',['Oficina 1','Oficina 2','Oficina 3',G('Tribunal de Justicia Mayor','#a88420',['Oficina Superiores TJM!','Oficina TJM'],'⚖'),G('Fiscal General del Estado','#a88420',['Oficina Superiores FGE!','Oficina FGE'],'⚖')],'⚖'),
+G('FFCCSS','#fff',[G('Tácticas Conjuntas FFCCS','#ffe14d',['*Táctica conjunta 1','*Táctica conjunta 2','*Táctica conjunta 3'],'⚠'),
+ G('Cuerpo Nacional de Policía','#4a8cff',[...S('CNP','Oficina Superiores CNP'),'Asuntos Internos!',T(),
+  G('Grupo de Atención al Ciudadano','#4a8cff',['Unidad Supervisora','Sin Indicativo',...N('Zeta',[10,20,30,40,50,60,70,80])],'🛡'),
+  G('Grupo Operativo de Respuesta','#4a8cff',N('Focus',[10,20,30]),'🛡'),
+  G('Unidades Camufladas','#fff',N('Sombra',[10,20]),'🕶')],'🛡'),
+ G('Guardia Civil','#3ecf6e',['Cafetería','Asignación','Reuniones GC','Formaciones Académicas','Oficina del supervisor',T(),
+  G('Seguridad Ciudadana','#3ecf6e',['[COS] Central Operativa',...N('Charlie',[10,11,12,13,14,15,16,17,18]),'Controles de Seguridad Ciudadana'],'⭐'),
+  G('Agrupación de Tráfico','#fff',['[COTA] Central de Tráfico',...N('Beta',[10,20,30]),'Atestados e Informes'],'🚔'),
+  G('USECIC','#fff',['Coordinación USECIC',...N('Echo',[10,20])]),
+  G('Grupo de Reserva y Seguridad','#fff',['Coordinación GRS',...N('Tango',[10,20])]),
+  G('Unidades Camufladas','#fff',N('Fénix',[10,20]),'🕶')],'⭐'),
+ G('Policía Local de Nueva Costa','#46c6e8',[...S('PL','Oficina Cargos Superiores'),T(),
+  G('Patrullas de Policía Local','#46c6e8',['Centralita Policía Local','Unidad Supervisora',...N('Sierra',[10,11,12,13,14,15,16,17])],'🚓'),
+  G('Unidad Canina','#fff',N('Charlie',[10,20,30]),'🐕'),
+  G('Unidades Camufladas','#fff',N('Romeo',[10,20]),'🕶')],'🚓'),
+ G('Salvamento Marítimo y Guardacostas','#2fb6a8',['Cafetería','Asignación','Centro de Coordinación Costera',
+  G('Embarcaciones','#2fb6a8',[...N('Neptuno',[10,20,30]),...N('Delfín',[10,20])],'⚓'),
+  G('Medios Aéreos','#fff',['Cóndor - 100','Ángel - 200'],'🚁')],'⚓')],'🛡'),
+G('Centro de Emergencias Sanitarias 061','#e06cff',[...S('061','Oficina Altos Cargos 061'),
+ G('Unidades','#ff7a45',['Centro Coordinador de Urgencias',G('SVB','#fff',N('Alpha',[10,20,30])),G('SVA','#fff',N('Sierra',[10,20,30])),G('VIR','#fff',N('Charlie',[10,20])),G('UJD','#fff',['Delta - 10'])],'🚑')],'🚑'),
+G('Servicio de Protección Civil','#ff7a45',['Cafetería','Asignación','Oficina Dirección PC!','Centro de Mando Avanzado',
+ G('Unidades','#ff9d45',[G('Técnicos de Emergencias','#fff',['Unidad Supervisora',...N('Alpha',[10,20,30]),...N('Bravo',[10,20,30])]),G('Bomberos Forestales','#fff',['Unidad Supervisora',...N('Delta',[10,20,30])]),G('Unidad Psicológica','#fff',N('Whiskey',[10,20]))],'⛑')],'⛑'),
+G('Real Cuerpo de Bomberos de Nueva Costa','#ff4b45',[...S('RCBNC','Oficinas Altos Cargos RCBNC'),'Centralita RCBNC [AMB]',
+ G('Estaciones','#ff4b45',['Puesto de Mando Foxtrot','Estación 01','Estación 02','Estación 03'],'🏠'),
+ G('Unidades','#ff4b45',[G('Radiofónicas','#fff',['148.47 MHz [RCBNC]','165.47 MHz [AMB]','153.47 MHz [NRBQ]','78.47 MHz [INFOCA]'],'📡')],'🚒')],'🚒')];
+const FREQ={},DATA={};let fi=0;
+const IM={'\ud83d\udee1':'sh','\ud83d\ude8d':'bus','\ud83d\udee3':'bus','\u2696':'gear','\u26a0':'tri','\u2b50':'star','\ud83d\ude94':'sh','\ud83d\ude93':'sh','\ud83d\udd76':'sh','\ud83d\udc15':'sh','\u2693':'anc','\ud83d\ude81':'star','\ud83d\ude91':'cr','\u26d1':'cr','\ud83d\ude92':'fl','\ud83c\udfe0':'home','\ud83d\udce1':'wk'};
+const P={folder:'<path d="M1.5 3.5h4.5L7.5 5h7v8.5h-13z"/>',sh:'<path d="M8 1l5.5 2v4.5c0 3.2-2.4 5.3-5.5 6.8C4.9 12.8 2.5 10.7 2.5 7.5V3z"/>',
+cr:'<path d="M6 2h4v4h4v4h-4v4H6v-4H2V6h4z"/>',fl:'<path d="M8 1c.8 2.8 4 4 4 8a4 4 0 0 1-8 0c0-1.8.8-3 1.8-4 .1 1.3.7 2 1.4 2C7.2 5.8 7 3.5 8 1z"/>',
+gear:'<circle cx="8" cy="8" r="5.5" fill="none" stroke="@" stroke-width="2.6" stroke-dasharray="2.4 1.5"/><circle cx="8" cy="8" r="2.4"/>',
+anc:'<g fill="none" stroke="@" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="3.5" r="1.5"/><path d="M8 5v8.5M3 9c.5 3 2.5 4.5 5 4.5S12.5 12 13 9M5.5 7h5"/></g>',
+bus:'<path d="M8 2l6 12h-2.4L8 6.5 4.4 14H2z"/>',home:'<path d="M8 2l6 5.5h-1.8V14H3.8V7.5H2z"/>',star:'<path d="M8 1.5l1.9 4.3 4.6.4-3.5 3 1.1 4.5L8 11.2 3.9 13.7 5 9.2 1.5 6.2l4.6-.4z"/>',
+tri:'<path d="M8 1.5l7 12.5H1z"/><rect x="7.2" y="6" width="1.6" height="4" fill="#111"/><circle cx="8" cy="11.7" r=".9" fill="#111"/>',
+wk:'<rect x="4.5" y="4.5" width="7" height="10" rx="1.4"/><rect x="10" y="1.2" width="1.8" height="4" rx=".7"/><rect x="6" y="6.5" width="4" height="2" rx=".4" fill="#1a1100"/><rect x="6" y="10" width="4" height="1" fill="#1a1100"/><rect x="6" y="12" width="4" height="1" fill="#1a1100"/>',
+bang:'<circle cx="8" cy="8" r="6.5" fill="#ffe14d"/><rect x="7.2" y="4" width="1.6" height="5" rx=".8" fill="#111"/><circle cx="8" cy="11.2" r="1" fill="#111"/>'};
+function svg(k,c){const t=P[k]?k:(IM[k]||'folder');c=c||'currentColor';return '<svg viewBox="0 0 16 16" width="16" height="16" style="flex:none" fill="'+c+'">'+P[t].replace(/@/g,c)+'</svg>'}
+Object.assign(P,{
+wk:'<rect x="5" y="5" width="7" height="10.5" rx="1.6"/><rect x="10.2" y="1.2" width="1.7" height="4.3" rx=".8"/><rect x="3.6" y="7" width="1.2" height="3" rx=".5"/><rect x="6.4" y="6.4" width="4.2" height="2.2" rx=".5" fill="#1a1100"/><rect x="6.4" y="10" width="4.2" height=".9" fill="#1a1100"/><rect x="6.4" y="11.6" width="4.2" height=".9" fill="#1a1100"/><rect x="6.4" y="13.2" width="4.2" height=".9" fill="#1a1100"/>',
+all:'<path d="M8 1l5.5 2v4.5c0 3.2-2.4 5.3-5.5 6.8V1z" fill="#4a8cff"/><path d="M8 1L2.5 3v4.5c0 3.2 2.4 5.3 5.5 6.8V1z" fill="#ffb62e"/><path d="M8 8h5.5c-.4 2.600-2.400 4.600-5.500 6.300z" fill="#41d67c"/><path d="M8 8H2.500c.4 2.600 2.400 4.600 5.500 6.300z" fill="#f0513f"/>',
+cnp:'<path d="M8 1l5.5 2v4.5c0 3.2-2.4 5.3-5.5 6.8C4.900 12.800 2.500 10.700 2.500 7.500V3z"/><path d="M8 4.200l.9 1.900 2 .3-1.500 1.400.4 2L8 8.900 6.200 9.800l.4-2L5.100 6.400l2-.3z" fill="#0a1a3a"/>',
+gc:'<g fill="none" stroke="@" stroke-width="1.7" stroke-linecap="round"><path d="M3 13.200L12.500 3.500M13 13.200L3.500 3.500"/><path d="M2.500 10.500l3 3M13.500 10.500l-3 3"/></g><circle cx="8" cy="8.300" r="1.800"/>',
+pl:'<path d="M8 1l5.500 2v4.500c0 3.200-2.400 5.300-5.500 6.800C4.900 12.800 2.500 10.700 2.500 7.500V3z"/><path d="M3 7h10v2H3z" fill="#07222b"/>',
+mar:'<circle cx="8" cy="8" r="7" fill="none" stroke="@" stroke-width="1.3"/><g fill="none" stroke="@" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="4.700" r="1.100"/><path d="M8 5.800v6M5 9.500c.4 1.800 1.500 2.700 3 2.700s2.600-.9 3-2.700M6.300 7.300h3.400"/></g>',
+s061:'<text x="8" y="12" font-size="9.500" font-weight="700" text-anchor="middle" font-family="Barlow Condensed,Arial,sans-serif">061</text>',
+pc:'<path d="M8 1.500L15 14H1z" fill="none" stroke="@" stroke-width="1.700" stroke-linejoin="round"/><circle cx="8" cy="9.200" r="1.300"/><path d="M8 10.500v2" stroke="@" stroke-width="1.500" stroke-linecap="round"/>',
+bom:'<path d="M8 1l5.500 2v4.500c0 3.200-2.400 5.300-5.500 6.800C4.900 12.800 2.500 10.700 2.500 7.500V3z"/><path d="M8 4c.6 1.700 2.400 2.400 2.400 4.600a2.400 2.400 0 0 1-4.800 0c0-1.100.5-1.800 1.100-2.400.1.800.5 1.200.9 1.200C7.400 6.500 7.300 5.200 8 4z" fill="#2a0806"/>'});
+const NI={'FFCCSS':'all','Cuerpo Nacional de Policía':'cnp','Guardia Civil':'gc','Policía Local de Nueva Costa':'pl','Salvamento Marítimo y Guardacostas':'mar','Centro de Emergencias Sanitarias 061':'s061','Servicio de Protección Civil':'pc','Real Cuerpo de Bomberos de Nueva Costa':'bom',"Staff's":'folder','Out Of Character':'folder'};
+const NC={"Staff's":'#7ea6ff','Out Of Character':'#d9a520','FFCCSS':'','Centro de Emergencias Sanitarias 061':'#e06cff'};
+const UI=p=>'<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">'+p+'</svg>';
+$('#bmic').innerHTML=UI('<rect x="6" y="1.5" width="4" height="8" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2.5"/>');
+$('#bhp').innerHTML=UI('<path d="M2.5 10V8a5.5 5.5 0 0 1 11 0v2"/><rect x="2" y="9.5" width="3" height="4.5" rx="1"/><rect x="11" y="9.5" width="3" height="4.5" rx="1"/>');
+$('#bset').innerHTML=UI('<path d="M2 4.5h12M2 11.5h12"/><circle cx="6" cy="4.5" r="1.6" fill="#111112"/><circle cx="10.5" cy="11.5" r="1.6" fill="#111112"/>');
+$('#bbolo').firstChild.textContent=' BOLO ';$('#bbolo').insertAdjacentHTML('afterbegin',UI('<circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/>'));
+let ac,out,bus,noise,hiss,on=true,vol=.7,deaf=false,muted=false,joined=null,view='global',tx=false,rx=false,busy=false,micG,micReady=false;
+const rooms={global:[]},bolos=[];let myName='Agente';
+const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('s');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('s'),1900)};
+
+/* ---------- Audio ---------- */
+function init(){
+ if(ac){ac.resume();return}
+ ac=new(window.AudioContext||window.webkitAudioContext)();
+ const cp=ac.createDynamicsCompressor();out=ac.createGain();out.connect(cp);cp.connect(ac.destination);setVol();
+ bus=ac.createGain();const h1=ac.createBiquadFilter();h1.type='highpass';h1.frequency.value=380;const l1=ac.createBiquadFilter();l1.type='lowpass';l1.frequency.value=3300;const pk=ac.createBiquadFilter();pk.type='peaking';pk.frequency.value=1700;pk.gain.value=5;pk.Q.value=1;const sh=ac.createWaveShaper(),cv=new Float32Array(512);for(let i=0;i<512;i++)cv[i]=Math.tanh((i/256-1)*1.3);sh.curve=cv;bus.connect(h1);h1.connect(pk);pk.connect(l1);l1.connect(sh);sh.connect(out);
+ const len=ac.sampleRate*2;noise=ac.createBuffer(1,len,ac.sampleRate);const d=noise.getChannelData(0);let b=0;
+ for(let i=0;i<len;i++){const w=Math.random()*2-1;b=b*.97+w*.03;d[i]=w*.55+b*5}
+ const s=ac.createBufferSource();s.buffer=noise;s.loop=true;
+ const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2000;bp.Q.value=.45;
+ hiss=ac.createGain();hiss.gain.value=0;s.connect(bp);bp.connect(hiss);hiss.connect(out);s.start();
+}
+const setVol=()=>{if(out)out.gain.value=deaf?0:vol*vol*1.3};
+function burst(dur,f,q,g,t0=0){const s=ac.createBufferSource();s.buffer=noise;const fl=ac.createBiquadFilter();fl.type='bandpass';fl.frequency.value=f;fl.Q.value=q;
+ const gn=ac.createGain(),t=ac.currentTime+t0;gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);
+ s.connect(fl);fl.connect(gn);gn.connect(bus);s.start(t,Math.random());s.stop(t+dur+.05)}
+function tone(f,dur,g=.2,t0=0,r=1){const o=ac.createOscillator(),gn=ac.createGain(),t=ac.currentTime+t0;o.frequency.value=f;
+ gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(g,t+.01);gn.gain.setValueAtTime(g,t+dur-.02);gn.gain.linearRampToValueAtTime(0,t+dur);
+ o.connect(gn);gn.connect(r?bus:out);o.start(t);o.stop(t+dur+.02)}
+function sweep(dur,f0,f1,g,t0=0){const s=ac.createBufferSource();s.buffer=noise;const fl=ac.createBiquadFilter();fl.type='bandpass';fl.Q.value=.7;const gn=ac.createGain(),t=ac.currentTime+t0;
+ fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+dur);gn.gain.setValueAtTime(.001,t);gn.gain.linearRampToValueAtTime(g,t+.006);gn.gain.exponentialRampToValueAtTime(.001,t+dur);
+ s.connect(fl);fl.connect(gn);gn.connect(bus);s.start(t,Math.random());s.stop(t+dur+.05)}
+function puff(dur,g,t0=0){const s=ac.createBufferSource();s.buffer=noise;const fl=ac.createBiquadFilter();fl.type='bandpass';fl.frequency.value=1800;fl.Q.value=.6;const gn=ac.createGain(),t=ac.currentTime+t0;
+ gn.gain.setValueAtTime(.001,t);gn.gain.linearRampToValueAtTime(g,t+.004);gn.gain.linearRampToValueAtTime(g*.45,t+dur);gn.gain.linearRampToValueAtTime(0,t+dur+.012);
+ s.connect(fl);fl.connect(gn);gn.connect(bus);s.start(t,Math.random());s.stop(t+dur+.05)}
+const SND_B64='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/+WX/j++f/7/cql1dL1FFkBhTBq3BvXAGUgkoZ9AZsgDhz/rtgWJS3//Lu5TGbVWl5+WX//444/+sv1l//////rLu8aVKKyffwXwrg1MQU1FMy4xMDCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';let sndBuf=null;
+function loadSnd(){if(sndBuf||!ac)return;try{const bin=atob(SND_B64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);ac.decodeAudioData(u.buffer,x=>{sndBuf=x},()=>{})}catch(e){}}
+function playSnd(d=0){if(!sndBuf){loadSnd();return ck(1500,1,d)}const s=ac.createBufferSource();s.buffer=sndBuf;const g=ac.createGain();g.gain.value=.9;s.connect(g);g.connect(out);s.start(ac.currentTime+d)}
+function ck(f,g,t0=0){burst(.008,3500,1,g,t0);burst(.035,f,3,g*.9,t0+.002)}
+const sClick=()=>{const m=$('#snd').value;if(m==='mp3')playSnd();else if(m==='bip')tone(1500,.07,.2);else if(m==='sql'){burst(.01,3000,.8,1);puff(.08,.6,.006)}else ck(1500,1)};
+const sTail=()=>{const m=$('#snd').value,d=$('#rog').checked?.12:0;if(m==='mp3')playSnd(d);else if(m==='bip')tone(1100,.07,.2,d);else if(m==='sql'){puff(.2,.8,d);burst(.01,3000,.8,.5,d+.21)}else{ck(900,1,d);burst(.05,2200,.6,.3,d+.02)}};
+const sRoger=()=>{if($('#rog').checked)tone(1000,.09,.16)};
+const sJoin=()=>{loadSnd();tone(660,.09,.22,0,0);tone(990,.16,.22,.1,0)};
+const sLeave=()=>{tone(700,.08,.2,0,0);tone(480,.1,.2,.09,0)};
+const hissLvl=()=>{if(!hiss)return;hiss.gain.setTargetAtTime(0,ac.currentTime,.03)};
+
+/* ---------- Micrófono con filtro de radio ---------- */
+async function enableMic(){
+ try{const st=await navigator.mediaDevices.getUserMedia({audio:true});const s=ac.createMediaStreamSource(st);
+  const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=450;
+  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;
+  const ws=ac.createWaveShaper(),c=new Float32Array(256);for(let i=0;i<256;i++)c[i]=Math.tanh((i/128-1)*4);ws.curve=c;
+  micG=ac.createGain();micG.gain.value=0;s.connect(hp);hp.connect(lp);lp.connect(ws);ws.connect(micG);micG.connect(bus);micReady=true;toast('Micrófono activado')}
+ catch(e){toast('No se pudo acceder al micrófono')}}
+const micLvl=()=>{if(micG)micG.gain.setTargetAtTime(tx&&!muted&&$('#mon').checked?1.1:0,ac.currentTime,.01)};
+
+/* ---------- Árbol de canales ---------- */
+function build(list,par,color,cat){
+ list.forEach(x=>{
+  if(typeof x==='object'){
+   const h=document.createElement('div');h.className='cat';h.tabIndex=0;h.style.color=x.c;h.innerHTML=svg(NI[x.n]||x.i,x.c)+' '+x.n;
+   const k=document.createElement('div');k.className='kids';h.dataset.r=RR[x.n]||'';k.dataset.r=h.dataset.r;
+   const tg=()=>{h.classList.toggle('c');k.classList.toggle('c')};h.onclick=tg;h.onkeydown=e=>{if(e.key==='Enter')tg()};
+   par.append(h,k);build(x.k,k,x.c,x.n)}
+  else{
+   const lock=x.endsWith('!'),tac=x[0]==='*',n=x.replace(/^\*|!$/g,''),id=cat+'/'+n;
+   FREQ[id]=(150+(fi++)*.025).toFixed(3);DATA[id]={n,cat,sup:lock};
+   const e=document.createElement('div');e.className='ch'+(lock?' lock':'')+(tac?' tac':'');e.tabIndex=0;e.dataset.n=id;
+   e.innerHTML='<span class="ic">'+svg(tac?'bang':'wk')+'</span>'+n+(lock||/MHz/.test(n)?'':'<small>'+FREQ[id]+'</small>');
+   e.dataset.sup=lock?1:0;e.onclick=()=>join(id,lock&&!isMando());e.onkeydown=ev=>{if(ev.key==='Enter')join(id,lock&&!isMando())};par.append(e);const pp=document.createElement('div');pp.className='pp';pp.dataset.n=id;par.append(pp)}})}
+const CFG={backend:''}; // URL de tu servidor de cuentas, p. ej. 'https://radio-nvc.onrender.com'
+const REAL=true,REQ=['mic','cam','not'],TEST=location.hash==='#prueba';
+let SRV={roles:[],owner:false};
+var rtJoined=null,rtName=null,rt=null,rtLobby=null,rtRoom=null,rtCtl=null,MYCID=null,prevRoster={};const NAME2CID={};
+const SID=(()=>{let s=null;try{s=localStorage.getItem('sid')}catch(_){}if(!s){s=Array.from(crypto.getRandomValues(new Uint8Array(24)),b=>b.toString(16).padStart(2,'0')).join('');try{localStorage.setItem('sid',s)}catch(_){}}return s})();
+const ROLES=[['ver','Verificado'],['mando','Mando'],['staff','Staff']];
+const RR={'Departamento de Transporte':'ver','Ciudad de la Justicia':'ver','FFCCSS':'ver','Centro de Emergencias Sanitarias 061':'ver','Servicio de Protección Civil':'ver','Real Cuerpo de Bomberos de Nueva Costa':'ver'};
+const LS=k=>{try{return localStorage.getItem(k)}catch(_){return null}};
+let users={},isOwner=!!(LS('oc')&&LS('ow')==='1'),members={};
+try{users=JSON.parse(LS('ru')||'{}')}catch(_){}
+const saveU=()=>{try{localStorage.setItem('ru',JSON.stringify(users))}catch(_){}};
+const has=r=>REAL?(SRV.owner||SRV.roles.includes(r)):(isOwner||((users[myName]&&users[myName].r)||[]).includes(r)),okRole=r=>!r||has(r),isMando=()=>has('mando')||has('staff'),canManage=()=>isOwner||has('staff');
+build(TREE,$('#tree'));
+const vis=el=>{let n=el.parentElement;while(n&&n.id!=='tree'){if(n.classList.contains('kids')&&!okRole(n.dataset.r))return false;n=n.parentElement}return true};
+function applyRoles(){
+ document.querySelectorAll('.cat').forEach(h=>{const ok=okRole(h.dataset.r);h.style.display=ok?'':'none';h.nextElementSibling.style.display=ok?'':'none'});
+ document.querySelectorAll('.ch[data-sup="1"]').forEach(e=>e.classList.toggle('lock',!isMando()));
+ let rh=$('#rh');if(!rh){rh=document.createElement('div');rh.id='rh';$('#tree').prepend(rh)}
+ rh.textContent='Estás como no verificado: solo ves los canales OOC. Un miembro del staff debe verificarte.';rh.style.display=has('ver')?'none':'block';
+ if(joined){const el=[...document.querySelectorAll('.ch')].find(x=>x.dataset.n===joined);if(el&&!vis(el))join(joined,false)}}
+function moveMember(name,from,to){
+ if(from===to||!isMando())return;
+ const t=[...document.querySelectorAll('.ch')].find(x=>x.dataset.n===to);
+ if(!t||!vis(t)||t.classList.contains('lock'))return toast('No puedes mover a nadie a ese canal');
+ if(REAL){const cid=NAME2CID[name];if(rt&&cid)rt.channels.get('ctl:'+cid).publish('move',{to,by:myName});return toast('Moviendo a '+name+'…')}
+ members[from]=(members[from]||[]).filter(x=>x!==name);(members[to]=members[to]||[]).push(name);
+ rooms[from]=rooms[from]||[];rooms[to]=rooms[to]||[];
+ rooms[from].push({k:'sys',who:'●',t:hhmm(),txt:name+' ha sido movido a '+DATA[to].n+' por '+myName});
+ rooms[to].push({k:'sys',who:'●',t:hhmm(),txt:name+' ha sido movido aquí por '+myName});
+ draw();toast(name+' movido a '+DATA[to].n)}
+const tr=$('#tree'),clr=()=>document.querySelectorAll('.ch.drop').forEach(x=>x.classList.remove('drop'));
+tr.addEventListener('dragover',e=>{const c=e.target.closest('.ch,.pp');if(c&&isMando()){e.preventDefault();clr();const ch=[...document.querySelectorAll('.ch')].find(x=>x.dataset.n===c.dataset.n);if(ch)ch.classList.add('drop')}});
+tr.addEventListener('drop',e=>{clr();const c=e.target.closest('.ch,.pp');if(!c)return;e.preventDefault();try{const[n,f]=JSON.parse(e.dataTransfer.getData('text/plain'));moveMember(n,f,c.dataset.n)}catch(_){}});
+addEventListener('dragend',clr);
+$('#pop').insertAdjacentHTML('beforeend','<div id="rm"></div>');
+function panels(){
+ const r=$('#rm');r.innerHTML='';
+ if(REAL){const t=document.createElement('div');t.className='an';t.textContent='Tu rol: '+(SRV.owner?'Propietario':SRV.roles.length?SRV.roles.join(' · '):'No verificado')+'. Los roles se asignan en Discord.';r.append(t);return}
+ const box=t=>{const d=document.createElement('div');d.style.cssText='display:grid;gap:6px;margin-top:8px';const h=document.createElement('div');h.style.cssText='font-size:12px;color:var(--amb)';h.textContent=t;d.append(h);r.append(d);return d};
+ const mine=isOwner?'Propietario':((users[myName]&&users[myName].r)||[]).map(k=>ROLES.find(x=>x[0]===k)[1]).join(' · ')||'No verificado';
+ const b1=box('Tu rol: '+mine),btn=(t,f)=>{const g=document.createElement('button');g.className='btn';g.textContent=t;g.onclick=f;return g};
+ if(!isOwner){const i=document.createElement('input');i.type='password';i.placeholder='Código de propietario';
+  b1.append(i,btn(LS('oc')?'Entrar como propietario':'Crear código de propietario',()=>{const v=i.value,c=LS('oc');if(v.length<4)return toast('El código necesita 4 caracteres o más');
+   if(!c){try{localStorage.setItem('oc',v)}catch(_){}isOwner=true}else if(c===v)isOwner=true;else return toast('Código incorrecto');try{localStorage.setItem('ow','1')}catch(_){}refreshRoles()}))}
+ else b1.append(btn('Salir del modo propietario',()=>{isOwner=false;try{localStorage.removeItem('ow')}catch(_){}refreshRoles()}));
+ const b2=box('Gestión de roles');
+ if(!canManage()){const t=document.createElement('div');t.style.cssText='font-size:12px;color:var(--mut)';t.textContent='Solo el propietario y el staff pueden asignar roles.';b2.append(t)}
+ else{
+  Object.keys(users).forEach(n=>{const row=document.createElement('div');row.className='u';const s=document.createElement('b');s.textContent=n;row.append(s);
+   ROLES.forEach(([k,l])=>{const lb=document.createElement('label');const c=document.createElement('input');c.type='checkbox';c.checked=users[n].r.includes(k);c.disabled=k==='staff'&&!isOwner;
+    c.onchange=()=>{users[n].r=c.checked?[...users[n].r,k]:users[n].r.filter(x=>x!==k);saveU();refreshRoles()};lb.append(c,l);row.append(lb)});
+   const x=document.createElement('button');x.className='ib';x.textContent='×';x.title='Quitar persona';x.disabled=users[n].r.includes('staff')&&!isOwner;x.onclick=()=>{delete users[n];saveU();refreshRoles()};row.append(x);b2.append(row)});
+  const i=document.createElement('input');i.type='text';i.placeholder='Nombre o indicativo de la persona';
+  b2.append(i,btn('Añadir persona',()=>{const n=i.value.trim();if(!n)return;users[n]=users[n]||{r:[]};saveU();refreshRoles()}))}
+ if(isMando()){const b3=box('Herramientas de mando');const t=document.createElement('div');t.style.cssText='font-size:12px;color:var(--mut)';t.textContent='Arrastra a una persona de un canal a otro para moverla. Para probarlo, simula que alguien entra en tu canal:';
+  const i=document.createElement('input');i.type='text';i.placeholder='Nombre de la persona de prueba';
+  b3.append(t,i,btn('Simular que entra en mi canal',()=>{const n=i.value.trim();if(!n)return;if(!joined)return toast('Entra primero en un canal');(members[joined]=members[joined]||[]).push(n);rooms[joined].push({k:'sys',who:'●',t:hhmm(),txt:n+' se ha unido al canal'});i.value='';draw()}))}}
+function refreshRoles(){applyRoles();panels();draw();try{upId()}catch(_){}}
+refreshRoles();
+function join(n,lock){
+ init();
+ if(lock)return toast('No tienes permisos para entrar en '+DATA[n].n);
+ if(joined===n){sLeave();rooms[n].push({k:'sys',who:'●',t:hhmm(),txt:myName+' ha salido del canal'});tx=false;rx=false;joined=null;if(view===n)view='global';hissLvl();draw();return toast('Has salido de '+DATA[n].n)}
+ if(joined){sLeave();rooms[joined].push({k:'sys',who:'●',t:hhmm(),txt:myName+' ha salido del canal'})}joined=n;view=n;rooms[n]=rooms[n]||[];rooms[n].push({k:'sys',who:'●',t:hhmm(),txt:myName+' se ha unido al canal'});sJoin();hissLvl();draw();if(myName==='Agente'&&!join.a){join.a=1;$('#pop').classList.add('s');$('#nameIn').focus();toast('Escribe tu indicativo para que aparezca en el canal')}
+ if(myName!=='Agente')toast(myName+' se ha unido a '+DATA[n].n)}
+
+/* ---------- Vistas ---------- */
+function draw(){if(REAL&&rt&&(rtJoined!==joined||rtName!==myName))rtSync();
+ document.querySelectorAll('.ch').forEach(e=>{e.classList.toggle('on',e.dataset.n===joined);e.classList.toggle('talk',e.dataset.n===joined&&(tx||rx))});
+ document.querySelectorAll('.pp').forEach(q=>{q.innerHTML='';const id=q.dataset.n;
+  const row=(name,self)=>{const r=document.createElement('div');r.className='pr'+(self&&tx?' talk':'');const a=document.createElement('i');a.textContent=name[0].toUpperCase();const s=document.createElement('span');s.textContent=name;r.append(a,s);
+   if(!self&&isMando()){r.draggable=true;r.title='Arrastra a otro canal para moverlo';r.ondragstart=e=>e.dataTransfer.setData('text/plain',JSON.stringify([name,id]))}q.append(r)};
+  if(id===joined)row(myName,true);(members[id]||[]).forEach(n=>row(n,false))});
+ $('#tabs').innerHTML='';
+ [['global','Chat global'],joined&&[joined,DATA[joined].n]].filter(Boolean).forEach(([k,l])=>{
+  const b=document.createElement('button');b.className='tab'+(k!=='global'?' r':'')+(view===k?' a':'');b.textContent=l;b.onclick=()=>{view=k;draw()};$('#tabs').append(b)});
+ $('#msg').placeholder='Mensaje a '+(view==='global'?'Chat global':DATA[view].n)+'…';
+ $('#inc').parentElement.style.display='none';
+ {const st=$('#st');st.className=(joined?'on ':'')+(tx?'tx':rx?'rx':'');
+ st.innerHTML=joined?'<span class="lamp"></span><div class="stn"><b></b><small></small></div><div class="lcd">'+FREQ[joined]+'<em>MHz</em></div><div class="vu"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="key"><kbd>V</kbd>mantén para hablar</div>':'<span class="lamp"></span><div class="stn"><b>Sin conexión</b><small>Elige un canal en la lista</small></div>';
+ if(joined){st.querySelector('b').textContent=DATA[joined].n;st.querySelector('small').textContent=DATA[joined].cat+(tx?' · transmitiendo':rx?' · recibiendo':'')}}
+ const cn=$('#conn');cn.style.display=joined?'flex':'none';cn.innerHTML='';
+ if(joined){const cs=document.createElement('div');cs.className='cs';const l=document.createElement('span');l.className='lamp';const w=document.createElement('div');const t=document.createElement('b');t.textContent='Radio conectada';const s=document.createElement('small');s.textContent=DATA[joined].n+' · '+FREQ[joined]+' MHz';w.append(t,s);cs.append(l,w);const x=document.createElement('button');x.className='ib';x.title='Desconectar';x.innerHTML=UI('<path d="M3 3l10 10M13 3L3 13"/>');x.onclick=()=>join(joined,false);cn.append(cs,x)}
+ const L=rooms[view],c=$('#chat');c.innerHTML='';
+ if(!L.length)c.innerHTML='<div class="empty"><div>'+svg('wk','currentColor').replace('width="16" height="16"','width="46" height="46"')+'<b>Aún no hay mensajes</b>'+(view==='global'?'Los mensajes de Chat global son solo en directo y no se guardan.':'Los mensajes de radio solo se ven en directo.')+'</div></div>';
+ L.forEach(m=>{const d=document.createElement('div');d.className='m '+m.k;
+  if(m.k==='sys'){const s=document.createElement('span');s.textContent=m.txt;const t=document.createElement('small');t.textContent=m.t;d.append(s,t)}
+  else{const a=document.createElement('i');a.textContent=(m.who||'?')[0].toUpperCase();const w=document.createElement('div');const hd=document.createElement('div');hd.className='mh';const b=document.createElement('b');b.textContent=m.who;const s=document.createElement('small');s.textContent=m.t;hd.append(b,s);const p=document.createElement('p');p.textContent=m.txt;w.append(hd,p);d.append(a,w)}
+  c.append(d)});
+ c.scrollTop=c.scrollHeight}
+function renderBolos(){
+ $('#bc').textContent=bolos.length;const c=$('#bolos');c.innerHTML='';
+ bolos.forEach((b,i)=>{const d=document.createElement('div');d.className='bolo';
+  const m=Math.floor((Date.now()-b.ts)/60000);
+  const h=document.createElement('h4');h.textContent='BOLO';const sm=document.createElement('small');sm.textContent='por '+b.by+' · '+(m<1?'ahora':m+' min');h.append(sm);d.append(h);
+  [['Descripción del vehículo',b.d],['Color',b.c],['Matrícula',b.p]].forEach(([k,v])=>{const r=document.createElement('div');const a=document.createElement('span');a.textContent=k;const x=document.createElement('b');x.textContent=v||'—';if(k==='Matrícula'&&v)x.className='plate';r.append(a);if(k==='Color'&&v&&window.CSS&&CSS.supports('color',v)){const o=document.createElement('i');o.style.background=v;r.append(o)}r.append(x);d.append(r)});
+  const x=document.createElement('button');x.textContent='×';x.title='Cerrar BOLO';x.onclick=()=>{bolos.splice(i,1);renderBolos()};d.append(x);c.append(d)})}
+setInterval(renderBolos,30000);
+
+/* ---------- Transmisión ---------- */
+function keyDown(){if(!joined||tx||busy&&false)return;tx=true;sClick();hissLvl();micLvl();draw()}
+function keyUp(){if(!tx)return;tx=false;sTail();sRoger();hissLvl();micLvl();draw()}
+const say=t=>new Promise(r=>{let d=0;const e=()=>{if(!d){d=1;r()}};
+ if($('#voz').checked&&window.speechSynthesis){const u=new SpeechSynthesisUtterance(t);u.lang='es-ES';u.rate=1.08;u.pitch=.9;u.onend=e;u.onerror=e;speechSynthesis.cancel();speechSynthesis.speak(u);setTimeout(e,Math.min(15000,t.length*75+700)+4000)}
+ else setTimeout(e,Math.min(15000,t.length*75+700))});
+const hhmm=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+async function send(){
+ const txt=$('#msg').value.trim();if(!txt)return;
+ init();$('#msg').value='';
+ if(view==='global'){rooms.global.push({k:'out',who:myName,t:hhmm(),txt});rtPub('global',{who:myName,txt});return draw()}
+ if(busy)return toast('Hay una transmisión en curso');
+ const room=view,incoming=$('#inc').checked;busy=true;
+ rooms[room].push({k:incoming?'in':'out',who:myName,t:hhmm(),txt});if(!incoming)rtPub(chName(room),{who:myName,txt});draw();
+ if(incoming){notify(myName,txt);rx=true;sClick();hissLvl();draw();await new Promise(r=>setTimeout(r,350));await say(txt);rx=false;sTail();sRoger();hissLvl();draw()}
+ else{keyDown();await new Promise(r=>setTimeout(r,250));await say(txt);keyUp()}
+ busy=false}
+$('#msg').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+
+/* ---------- Controles ---------- */
+
+
+
+const typing=()=>/INPUT|TEXTAREA/.test(document.activeElement.tagName);
+addEventListener('keydown',e=>{if(e.code==='KeyV'&&!e.repeat&&!typing()){init();if(!joined)return toast('Entra primero en un canal de radio');keyDown()}});
+addEventListener('keyup',e=>{if(e.code==='KeyV'&&!typing()){if(!busy)keyUp()}});
+$('#bmic').onclick=async()=>{init();if(!micReady)await enableMic();else{muted=!muted;$('#bmic').classList.toggle('off',muted);micLvl()}};
+$('#bhp').onclick=()=>{init();deaf=!deaf;$('#bhp').classList.toggle('off',deaf);setVol();hissLvl()};
+$('#bset').onclick=()=>$('#pop').classList.toggle('s');
+$('#vol').oninput=e=>{vol=e.target.value/100;setVol()};
+$('#mon').onchange=e=>{if(e.target.checked){init();if(!micReady)enableMic();toast('Usa auriculares para evitar el eco')}};
+$('#nameIn').oninput=e=>{myName=e.target.value.trim()||'Agente';$('#mn').textContent=myName;$('#av').textContent=myName[0].toUpperCase();try{localStorage.setItem('rn',e.target.value)}catch(_){}refreshRoles()};
+$('#bbolo').onclick=()=>$('#bf').classList.toggle('s');
+$('#snd').onchange=()=>{init();sClick();setTimeout(sTail,450)};
+$('#bgo').onclick=()=>{const d=$('#b1').value.trim(),c=$('#b2').value.trim(),pl=$('#b3').value.trim().toUpperCase();if(!d&&!pl)return toast('Añade descripción o matrícula');
+ bolos.unshift({d,c,p:pl,by:myName,ts:Date.now()});['#b1','#b2','#b3'].forEach(s=>$(s).value='');$('#bf').classList.remove('s');renderBolos();
+ if(ac){tone(1000,.15,.25,0,0);tone(1400,.15,.25,.18,0)}};
+try{const r=localStorage.getItem('rn');if(r){$('#nameIn').value=r;$('#nameIn').dispatchEvent(new Event('input'))}}catch(_){}
+$('#send').onclick=send;
+$('#q').oninput=e=>{const v=e.target.value.trim().toLowerCase();$('#tree').classList.toggle('searching',!!v);
+ document.querySelectorAll('.ch').forEach(c=>{const o=DATA[c.dataset.n],ok=!v||(vis(c)&&(o.n+' '+o.cat).toLowerCase().includes(v));c.classList.toggle('nomatch',!ok);c.nextElementSibling.classList.toggle('nomatch',!ok)});
+ document.querySelectorAll('.cat').forEach(g=>{const k=g.nextElementSibling,any=!v||k.querySelector('.ch:not(.nomatch)');g.classList.toggle('nomatch',!any);k.classList.toggle('nomatch',!any)})};
+
+const AC=(()=>{try{return JSON.parse(LS('acc')||'{}')}catch(_){return{}}})();
+const saveA=()=>{try{localStorage.setItem('acc',JSON.stringify(AC))}catch(_){}};
+const PERMS=[['mic','Micrófono','Para hablar por radio con el filtro de voz.'],['cam','Cámara','La radio aún no la usa. Si tu equipo no tiene cámara, no hace falta.'],['not','Notificaciones','Para avisarte de mensajes cuando la pestaña está en segundo plano.']];
+const PNAME={mic:'microphone',cam:'camera',not:'notifications'},PCH={nodevice:'Sin dispositivo',granted:'Concedido',denied:'Bloqueado',prompt:'Pendiente',unavailable:'No disponible',unknown:'Sin comprobar'},pst={};
+const NM={mic:'Micrófono',cam:'Cámara',not:'Notificaciones',discord:'Discord',roblox:'Roblox'};
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const notify=(t,b)=>{try{if(window.Notification&&Notification.permission==='granted'&&document.hidden)new Notification(t,{body:b})}catch(_){}};
+const upId=()=>{$('#mid').textContent=(isOwner||SRV.owner)?'Propietario':AC.roblox?'Roblox: '+AC.roblox:AC.discord?'Discord: '+AC.discord:'#4821'};
+const missing=()=>REQ.filter(k=>pst[k]!=='granted'&&pst[k]!=='nodevice');
+const ready=()=>TEST||missing().length===0;
+const queryP=async()=>{await queryP0();try{const d=await navigator.mediaDevices.enumerateDevices();if(!d.some(x=>x.kind==='videoinput')&&pst.cam!=='granted')pst.cam='nodevice';if(!d.some(x=>x.kind==='audioinput')&&pst.mic!=='granted')pst.mic='nodevice'}catch(_){}renderAcc()};
+async function queryP0(){
+ for(const k in PNAME){try{const s=await navigator.permissions.query({name:PNAME[k]});pst[k]=s.state;s.onchange=()=>{pst[k]=s.state;renderAcc()}}
+  catch(_){if(k==='not'&&window.Notification)pst.not=({default:'prompt',granted:'granted',denied:'denied'})[Notification.permission];else pst[k]=pst[k]||'unknown'}}
+ renderAcc()}
+async function ask(k){
+ try{
+  if(k==='not'){if(!window.Notification)throw new Error('x');const r=await Notification.requestPermission();pst.not=r==='default'?'prompt':r}
+  else{const s=await navigator.mediaDevices.getUserMedia(k==='mic'?{audio:true}:{video:true});s.getTracks().forEach(t=>t.stop());pst[k]='granted'}
+ }catch(e){const n=e&&e.name;
+  if(n==='NotAllowedError'||n==='SecurityError'){pst[k]='denied';toast('No se concedió el permiso. Si no salió el aviso, el navegador lo bloquea dentro de esta página.')}
+  else if(n==='NotFoundError'||n==='OverconstrainedError'||n==='DevicesNotFoundError'){pst[k]='nodevice';toast(k==='cam'?'No se ha detectado ninguna cámara en este equipo':'No se ha detectado ningún micrófono')}
+  else if(n==='NotReadableError'||n==='AbortError'||n==='TrackStartError'){pst[k]='granted';toast('Permiso concedido, pero otra aplicación está usando el dispositivo')}
+  else{pst[k]='unavailable';toast('Este navegador no permite pedir ese permiso aquí')}}
+ renderAcc()}
+async function refreshMe(){
+ if(!REAL)return;
+ try{const r=await fetch('/api/me');if(!r.ok)throw 0;const d=await r.json();
+  SRV={roles:d.roles||[],owner:!!d.owner};
+  ['discord','roblox'].forEach(k=>{if(d[k])AC[k]=d[k].name;else delete AC[k]});
+  const n=(d.roblox&&d.roblox.name)||(d.discord&&d.discord.name);if(n&&myName!==n){$('#nameIn').value=n;$('#nameIn').dispatchEvent(new Event('input'))}
+ }catch(_){toast('No se pudo contactar con el servidor de cuentas')}
+ saveA();upId();refreshRoles();renderAcc();rtStart()}
+const link=k=>{location.href='/auth/'+k};
+function renderAcc(){
+ const b=$('#accb');if(!b)return;b.innerHTML='';
+ const sec=t=>{const s=el('div','as');s.append(el('h3','',t));b.append(s);return s};
+ const s1=sec('Cuentas (opcional)');
+ [['discord','Discord','#5865f2'],['roblox','Roblox','#d9261c']].forEach(([k,l,c])=>{
+  const r=el('div','ar'),ic=el('i','ai',l[0]);ic.style.background=c;const w=el('div','aw');w.append(el('b','',l),el('small','',AC[k]||'Sin vincular'));r.append(ic,w);
+  if(AC[k]){r.append(el('span','chip2 '+(REAL?'ok':'warn'),REAL?'Verificado':'Sin verificar'));const u=el('button','btn2','Desvincular');
+   u.onclick=()=>{if(REAL)fetch('/api/unlink?p='+k,{method:'POST'}).then(refreshMe);else{delete AC[k];saveA();renderAcc();upId()}};r.append(u)}
+  else if(REAL){const g=el('button','btn','Vincular con '+l);g.onclick=()=>link(k);r.append(g)}
+  else{const i=el('input');i.placeholder='Tu usuario de '+l;i.maxLength=32;const g=el('button','btn','Vincular');
+   g.onclick=()=>{const v=i.value.trim();if(!v)return toast('Escribe tu usuario de '+l);AC[k]=v;saveA();if(k==='roblox'&&myName==='Agente'){$('#nameIn').value=v;$('#nameIn').dispatchEvent(new Event('input'))}renderAcc();upId()};r.append(i,g)}
+  s1.append(r)});
+ s1.append(el('p','an',REAL?'Con un clic se abre la página oficial de cada servicio. Al aceptar, vuelves aquí con la cuenta vinculada y verificada. Es opcional, pero sin vincular no aparecerás ante los demás ni podrás chatear con ellos.':'Modo demostración: no hay servidor de cuentas conectado, así que solo se guarda tu usuario en este navegador y no queda verificado.'));
+ const s2=sec('Permisos (obligatorio)');
+ PERMS.forEach(([k,l,d])=>{const r=el('div','ar'),w=el('div','aw');w.append(el('b','',l),el('small','',d));const st=pst[k]||'unknown';
+  r.append(w,el('span','chip2 '+(st==='granted'?'ok':st==='denied'?'bad':''),PCH[st]||PCH.unknown));
+  const done=st==='granted'||st==='nodevice',g=el('button',done?'btn2':'btn',st==='granted'?'Listo':st==='nodevice'?'No hace falta':st==='denied'?'Cómo desbloquear':'Permitir');g.disabled=done;
+  g.onclick=()=>st==='denied'?toast('Pulsa el candado de la barra de direcciones y permite el acceso'):ask(k);r.append(g);s2.append(r)});
+ const ok=ready();$('#accok').disabled=!ok;$('#accx').hidden=!ok;$('#accs').textContent=ok?'Todo listo':'Faltan: '+missing().map(k=>NM[k]).join(', ')}
+document.body.insertAdjacentHTML('beforeend','<div id="acc" hidden><div class="ac" role="dialog" aria-modal="true" aria-labelledby="act"><div class="ah"><div><h2 id="act">Cuentas y permisos</h2><p>Da acceso a lo que necesita la radio. Vincular tus cuentas es opcional.</p></div><button class="ib" id="accx" aria-label="Cerrar"></button></div><div id="accb"></div><div class="af"><span id="accs"></span><button class="btn" id="accok">Continuar</button></div></div></div>');
+$('#accx').innerHTML=UI('<path d="M3 3l10 10M13 3L3 13"/>');
+const openAcc=()=>{$('#acc').hidden=false;queryP();$('#accok').focus()},closeAcc=()=>{if(!ready())return toast('Completa los pasos para continuar');$('#acc').hidden=true};
+$('#accx').onclick=closeAcc;$('#accok').onclick=closeAcc;
+$('#acc').addEventListener('click',e=>{if(e.target.id==='acc')closeAcc()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#acc').hidden)closeAcc()});
+$('#av').style.cursor='pointer';$('#av').title='Cuentas y permisos';$('#av').onclick=openAcc;
+$('#pop .pt').insertAdjacentHTML('afterend','<button class="btn" id="bacc">Cuentas y permisos</button>');$('#bacc').onclick=openAcc;
+upId();(async()=>{await queryP();await refreshMe();if(!ready())openAcc()})();
+
+/* ---------- Tiempo real (Ably) ---------- */
+const hashId=s=>{let a=5381,b=52711;for(const c of s){a=((a<<5)+a+c.charCodeAt(0))|0;b=((b<<5)^b^c.charCodeAt(0))|0}return (a>>>0).toString(16)+(b>>>0).toString(16)};
+const zone=id=>DATA[id].sup?'sup':(DATA[id].cat==='Out Of Character'||DATA[id].cat==="Staff's")?'ooc':'all';
+const chName=id=>'room:'+zone(id)+':'+hashId(id);
+function rtPub(ch,d){if(rt)rt.channels.get(ch).publish('msg',d).catch(()=>toast('No se pudo enviar el mensaje'))}
+function rtStart(){
+ if(rt||(!AC.discord&&!AC.roblox))return;
+ if(!window.Ably){toast('No se pudo cargar el servicio de tiempo real');return}
+ rt=new Ably.Realtime({authUrl:'/api/ably-token',authMethod:'POST'});
+ rt.connection.once('connected',async()=>{
+  MYCID=rt.auth.clientId;rtLobby=rt.channels.get('lobby');
+  try{await rtLobby.presence.enter({name:myName,room:joined});await rtLobby.presence.subscribe(rtRoster)}catch(_){toast('Sin acceso al tiempo real')}
+  rtCtl=rt.channels.get('ctl:'+MYCID);
+  rtCtl.subscribe('move',m=>{const to=m.data&&m.data.to;if(DATA[to]&&joined!==to){join(to,false);toast((m.data.by||'Un mando')+' te ha movido a '+DATA[to].n)}});
+  rt.channels.get('global').subscribe('msg',m=>{if(m.clientId===MYCID)return;const d=m.data||{};rooms.global.push({k:'in',who:d.who,t:hhmm(),txt:d.txt});if(view==='global')draw()});
+  rtJoined=null;await rtSync();rtRoster()});
+ rt.connection.on('failed',()=>toast('No se pudo conectar al tiempo real'))}
+async function rtSync(){
+ if(!rt||!rtLobby)return;
+ rtJoined=joined;rtName=myName;
+ if(rtRoom){try{rtRoom.unsubscribe()}catch(_){}rtRoom=null}
+ try{await rtLobby.presence.update({name:myName,room:joined})}catch(_){}
+ if(joined){const id=joined;rtRoom=rt.channels.get(chName(id));try{await rtRoom.subscribe('msg',m=>{if(m.clientId===MYCID)return;rooms[id]=rooms[id]||[];rxMsg(id,m.data||{})})}catch(_){toast('No tienes acceso a ese canal')}}}
+async function rtRoster(){
+ if(!rtLobby)return;let list;try{list=await rtLobby.presence.get()}catch(_){return}
+ const first=!Object.keys(prevRoster).length,cur={},add=(id,t)=>(rooms[id]=rooms[id]||[]).push({k:'sys',who:'●',t:hhmm(),txt:t});
+ for(const k in members)delete members[k];
+ list.forEach(p=>{const d=p.data||{};cur[p.clientId]={name:d.name,room:d.room};if(!d.room||p.clientId===MYCID)return;NAME2CID[d.name]=p.clientId;(members[d.room]=members[d.room]||[]).push(d.name)});
+ if(joined&&!first){
+  Object.keys(cur).forEach(c=>{if(c===MYCID)return;const a=(prevRoster[c]||{}).room,b=cur[c].room;if(b===joined&&a!==joined)add(joined,cur[c].name+' se ha unido al canal');if(a===joined&&b!==joined)add(joined,(cur[c].name||'Alguien')+' ha salido del canal')});
+  Object.keys(prevRoster).forEach(c=>{if(!cur[c]&&c!==MYCID&&prevRoster[c].room===joined)add(joined,(prevRoster[c].name||'Alguien')+' ha salido del canal')})}
+ prevRoster=cur;draw()}
+async function rxMsg(id,d){
+ rooms[id].push({k:'in',who:d.who||'?',t:hhmm(),txt:d.txt||''});
+ if(joined!==id)return;if(view===id)draw();
+ if(busy||tx)return;
+ busy=true;rx=true;sClick();hissLvl();draw();await new Promise(r=>setTimeout(r,300));await say(d.txt||'');rx=false;sTail();sRoger();hissLvl();draw();busy=false}
+draw();
+</script></body></html>
