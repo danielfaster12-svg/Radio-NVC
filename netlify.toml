@@ -1,3 +1,9 @@
    [build]
      publish = "."
      functions = "netlify/functions"
+
+   [[redirects]]
+     from = "/"
+     to = "/radio3.html"
+     status = 200
+     force = true
